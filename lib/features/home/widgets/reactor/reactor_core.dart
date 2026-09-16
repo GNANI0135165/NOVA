@@ -1,10 +1,7 @@
-import 'package:flutter/material.dart';
+﻿import 'package:flutter/material.dart';
 
+import 'quantum_reactor_painter.dart';
 import 'reactor_controller.dart';
-import 'reactor_glow.dart';
-import 'reactor_ring.dart';
-import 'plasma_core.dart';
-import 'orbit_particles.dart';
 
 class ReactorCore extends StatefulWidget {
   const ReactorCore({super.key});
@@ -14,65 +11,77 @@ class ReactorCore extends StatefulWidget {
 }
 
 class _ReactorCoreState extends State<ReactorCore>
-    with TickerProviderStateMixin {
-  late ReactorController controller;
+    with SingleTickerProviderStateMixin {
+  late final AnimationController controller;
 
   @override
   void initState() {
     super.initState();
-    controller = ReactorController(vsync: this);
+
+    controller = AnimationController(
+      vsync: this,
+      duration: const Duration(seconds: 20),
+    )..repeat();
+
+    ReactorStateBus.state.addListener(_stateChanged);
+  }
+
+  void _stateChanged() {
+    final state = ReactorStateBus.state.value;
+
+    switch (state) {
+      case ReactorState.idle:
+        controller.duration = const Duration(seconds: 20);
+        break;
+
+      case ReactorState.listening:
+        controller.duration = const Duration(seconds: 11);
+        break;
+
+      case ReactorState.thinking:
+        controller.duration = const Duration(seconds: 5);
+        break;
+
+      case ReactorState.speaking:
+        controller.duration = const Duration(seconds: 8);
+        break;
+    }
+
+    controller
+      ..reset()
+      ..repeat();
   }
 
   @override
   void dispose() {
+    ReactorStateBus.state.removeListener(_stateChanged);
     controller.dispose();
     super.dispose();
   }
 
   @override
   Widget build(BuildContext context) {
-    const double reactorSize = 260;
+    return AnimatedBuilder(
+      animation: controller,
+      builder: (context, child) {
+        final state = ReactorStateBus.state.value;
 
-    return SizedBox(
-      width: reactorSize,
-      height: reactorSize,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          const ReactorGlow(size: reactorSize),
+        final pulse = state == ReactorState.thinking
+            ? (controller.value * 12) % 1
+            : (controller.value * 4) % 1;
 
-          ReactorRing(
-            size: reactorSize,
-            rotation: controller.rotationController,
-            strokeWidth: 5,
-            color: Colors.cyanAccent,
+        return SizedBox(
+          width: 360,
+          height: 360,
+          child: CustomPaint(
+            painter: QuantumReactorPainter(
+              rotation: controller.value,
+              pulse: pulse,
+              state: state,
+            ),
           ),
-
-          ReactorRing(
-            size: reactorSize * 0.82,
-            rotation: ReverseAnimation(controller.rotationController),
-            strokeWidth: 4,
-            color: Colors.deepPurpleAccent,
-          ),
-
-          ReactorRing(
-            size: reactorSize * 0.65,
-            rotation: controller.rotationController,
-            strokeWidth: 3,
-            color: Colors.lightBlueAccent,
-          ),
-
-          OrbitParticles(
-            size: reactorSize,
-            animation: controller.orbitController,
-          ),
-
-          PlasmaCore(
-            size: reactorSize * 0.30,
-            pulse: controller.pulseController,
-          ),
-        ],
-      ),
+        );
+      },
     );
   }
 }

@@ -10,64 +10,33 @@ class ReactorGlow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return SizedBox(
-      width: size * 2.0,
-      height: size * 2.0,
-      child: Stack(
-        alignment: Alignment.center,
-        children: [
-          // Large purple nebula
-          Container(
-            width: size * 1.85,
-            height: size * 1.85,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  const Color(0xFF8A4DFF).withOpacity(.25),
-                  const Color(0xFF4720B8).withOpacity(.10),
-                  Colors.transparent,
-                ],
-              ),
-            ),
+    return IgnorePointer(
+      child: Container(
+        width: size,
+        height: size,
+        decoration: BoxDecoration(
+          shape: BoxShape.circle,
+          gradient: RadialGradient(
+            colors: [
+              const Color(0xFF8A4DFF).withOpacity(.35),
+              const Color(0xFF00C8FF).withOpacity(.20),
+              Colors.transparent,
+            ],
+            stops: const [0.15, 0.55, 1.0],
           ),
-
-          // Blue energy field
-          Container(
-            width: size * 1.35,
-            height: size * 1.35,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              gradient: RadialGradient(
-                colors: [
-                  const Color(0xFF00C8FF).withOpacity(.28),
-                  Colors.transparent,
-                ],
-              ),
+          boxShadow: [
+            BoxShadow(
+              color: const Color(0xFF8A4DFF).withOpacity(.35),
+              blurRadius: 50,
+              spreadRadius: 10,
             ),
-          ),
-
-          // Soft bloom
-          Container(
-            width: size * 1.05,
-            height: size * 1.05,
-            decoration: BoxDecoration(
-              shape: BoxShape.circle,
-              boxShadow: [
-                BoxShadow(
-                  color: const Color(0xFF00C8FF).withOpacity(.35),
-                  blurRadius: 90,
-                  spreadRadius: 12,
-                ),
-                BoxShadow(
-                  color: const Color(0xFF8A4DFF).withOpacity(.28),
-                  blurRadius: 120,
-                  spreadRadius: 25,
-                ),
-              ],
+            BoxShadow(
+              color: const Color(0xFF00C8FF).withOpacity(.20),
+              blurRadius: 80,
+              spreadRadius: 20,
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
